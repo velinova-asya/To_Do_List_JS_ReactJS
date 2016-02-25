@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
+    <title>React JS To-Do List</title>
+
+    <script src="build/react.js"></script>
+    <script src="build/react-dom.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.23/browser.min.js"></script>
+    <script src="http://code.jquery.com/jquery-1.11.3.min.js"></script>
+    <script src="lodash.js"></script>
+   
+</head>
+
+<body>
+
+	<div id="listContainer"></div>
+
+	<script type="text/babel">
+
+
+	var ListBox = React.createClass({
+
+		addItem: function(e) {
+			var inputItem = {text: this.state.value, isMarked: false};
+			var newItems = this.state.items.concat([inputItem]);
+			this.setState({
+				items: newItems,
+				value: ''
+			});
+
+		},
+
+
+		deleteItem: function(item) {
+        	var newItems = _.without(this.state.items, item);
+        	this.setState({
+        		items: newItems
+        	});
+        },
+
+
+        onMark: function(item) {
+        	
+        	if (item.isMarked) {
+        		item.isMarked = false
+        	} else {
+        		item.isMarked = true
+        	}
+
+        	this.forceUpdate()
+
+        },
+
+		getInitialState: function() {
+			return  {
+				items: [],
+				value: ''
+			}
+		},
+
+		handleChange: function(event) {
+    		this.setState({value: event.target.value});
+  		},
+
+		render: function() {
+
+			var inlineStyle = {
+                display: 'block',
+                backgroundColor: '#eee'
+            };
+
+            var i = 0;
+
+            var items = this.state.items.map(function(item) {
+            	i++
+            	return <ToDoItem textItem={item} onDelete={this.deleteItem} onMark={this.onMark} key={i}/>;
+            }.bind(this));
+
+			return (
+				<div className="container" style={inlineStyle}> 
+					<h1>To Do List</h1>
+					<input type="text" value={this.state.value} onChange={this.handleChange} ref={function(input) {
+          				if (input != null) {
+            				input.focus();
+          				}
+        			}} />
+					<button className="addButton" onClick={this.addItem}>ADD</button>
+					{items}
+				</div>
+			);
+		}
+	});
+
+	
+
+	var ToDoItem = React.createClass({
+
+		deleteFunction: function(e) {
+			this.props.onDelete(this.props.textItem);
+		},
+
+
+		markFunction: function(e) {
+			this.props.onMark(this.props.textItem);
+		},
+
+
+		
+
+		render: function() {
+
+			var itemStyle = {
+				fontSize: '20px',
+				paddingTop: '10px' 
+			};
+
+			var btnStyle = {
+				marginLeft:'10px'
+			};
+
+			var textTodo = this.props.textItem.isMarked ? <del>{this.props.textItem.text}</del> : this.props.textItem.text
+
+
+			return (
+				<div style={itemStyle}>
+					<input type="checkbox" onChange={this.markFunction} />
+					{textTodo}
+					<button className="deleteButton" style={btnStyle} onClick={this.deleteFunction}>Delete</button>
+				</div>
+			);
+		}
+	});
+
+
+
+
+	ReactDOM.render(
+        <ListBox />,
+        document.getElementById("listContainer")
+    );
+
+	</script>
+
+</body>
+</html>
